@@ -3391,6 +3391,10 @@ static void __kmp_initialize_root(kmp_root_t *root) {
   // TODO???: hot_team->t.t_max_active_levels = __kmp_dflt_max_active_levels;
   hot_team->t.t_sched.sched = r_sched.sched;
   hot_team->t.t_size_changed = 0;
+
+ #if HPXC
+  hpxc_register_shutdown_function(__kmp_internal_end_dtor);
+ #endif
 }
 
 #ifdef KMP_DEBUG
