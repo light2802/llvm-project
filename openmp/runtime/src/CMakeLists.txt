@@ -160,7 +160,7 @@ if(OPENMP_STANDALONE_BUILD OR (NOT OPENMP_ENABLE_LIBOMP_PROFILING))
 	  # TODO Must be a better way to write this
 	  target_include_directories(omp PUBLIC ${HPXC_DIR}/include)
 	  target_link_libraries(omp ${LIBOMP_CONFIGURED_LIBFLAGS} ${LIBOMP_DL_LIBS}
-		  ${HPXC_DIR}/cmake-install/Debug/lib64/libhpx_hpxc.a HPX::hpx)
+		  ${HPXC_DIR}/cmake-install/Debug/lib/libhpx_hpxc.a HPX::hpx)
   else()
 	  target_link_libraries(omp ${LIBOMP_CONFIGURED_LIBFLAGS} ${LIBOMP_DL_LIBS})
   endif()
