@@ -413,7 +413,11 @@ static kmp_int32 __kmp_set_stack_info(int gtid, kmp_info_t *th) {
   int stack_data;
 #if KMP_OS_LINUX || KMP_OS_DRAGONFLY || KMP_OS_FREEBSD || KMP_OS_NETBSD ||     \
     KMP_OS_HURD
+#ifdef HPXC
+  hpxc_thread_attr_t attr;
+#else
   pthread_attr_t attr;
+#endif
   int status;
   size_t size = 0;
   void *addr = 0;
@@ -424,22 +428,38 @@ static kmp_int32 __kmp_set_stack_info(int gtid, kmp_info_t *th) {
   if (!KMP_UBER_GTID(gtid)) {
 
     /* Fetch the real thread attributes */
+#ifdef HPXC
+    status = hpxc_thread_attr_init(&attr);
+#else
     status = pthread_attr_init(&attr);
+#endif
     KMP_CHECK_SYSFAIL("pthread_attr_init", status);
 #if KMP_OS_DRAGONFLY || KMP_OS_FREEBSD || KMP_OS_NETBSD
     status = pthread_attr_get_np(pthread_self(), &attr);
     KMP_CHECK_SYSFAIL("pthread_attr_get_np", status);
 #else
+#ifdef HPXC
+    status = hpxc_thread_getattr(hpxc_thread_self(), &attr);
+#else
     status = pthread_getattr_np(pthread_self(), &attr);
+#endif
     KMP_CHECK_SYSFAIL("pthread_getattr_np", status);
 #endif
+#ifdef HPXC
+    status = hpxc_thread_attr_getstack(&attr, &addr, &size);
+#else
     status = pthread_attr_getstack(&attr, &addr, &size);
+#endif
     KMP_CHECK_SYSFAIL("pthread_attr_getstack", status);
     KA_TRACE(60,
              ("__kmp_set_stack_info: T#%d pthread_attr_getstack returned size:"
               " %lu, low addr: %p\n",
               gtid, size, addr));
+#ifdef HPXC
+    status = hpxc_thread_attr_destroy(&attr);
+#else
     status = pthread_attr_destroy(&attr);
+#endif
     KMP_CHECK_SYSFAIL("pthread_attr_destroy", status);
   }
 
@@ -1014,7 +1034,11 @@ retry:
 #endif // KMP_USE_MONITOR
 
 void __kmp_exit_thread(int exit_status) {
+#ifdef HPXC
+  hpxc_thread_exit((void *)(intptr_t)exit_status);
+#else
   pthread_exit((void *)(intptr_t)exit_status);
+#endif
 } // __kmp_exit_thread
 
 #if KMP_USE_MONITOR
