@@ -150,6 +150,10 @@ class kmp_stats_list;
 // Affinity format function
 #include "kmp_str.h"
 
+#if HPXC
+#include <hpxc/threads.h>
+#endif
+
 // 0 - no fast memory allocation, alignment: 8-byte on x86, 16-byte on x64.
 // 3 - fast allocation using sync, non-sync free lists of any size, non-self
 // free lists of limited size.
@@ -1620,8 +1624,13 @@ typedef DWORD kmp_key_t;
 #endif /* KMP_OS_WINDOWS */
 
 #if KMP_OS_UNIX
+#if HPXC
+typedef hpxc_thread_t kmp_thread_t;
+typedef hpxc_key_t kmp_key_t;
+#else
 typedef pthread_t kmp_thread_t;
 typedef pthread_key_t kmp_key_t;
+#endif
 #endif
 
 extern kmp_key_t __kmp_gtid_threadprivate_key;
